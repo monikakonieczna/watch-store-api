@@ -2,6 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using WatchStoreApi.Data;
 using WatchStoreApi.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Runtime.CompilerServices;
 
 namespace WatchStoreApi.Controllers
 {
@@ -16,47 +18,47 @@ namespace WatchStoreApi.Controllers
         }
 
         [HttpGet]
-        public IEnumerable<Product> Get()
+        public async Task<IEnumerable<Product>> Get()
         {
-            return dbContext.Products;
+            return await dbContext.Products.ToListAsync();
         }
 
         [HttpGet("{id}")]
-        public Product Get(int id)
+        public async Task<Product> Get(int id)
         {
-            return dbContext.Products.FirstOrDefault(p=>p.Id == id);
+            return await dbContext.Products.FirstOrDefaultAsync(p=>p.Id == id);
         }
 
         [HttpPost]
-        public void Post([FromBody] Product product)
+        public async Task Post([FromBody] Product product)
         {
-            dbContext.Products.Add(product);
-            dbContext.SaveChanges();
+            await dbContext.Products.AddAsync(product);
+            await dbContext.SaveChangesAsync();
         }
 
         // api/products/id
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] Product product)
+        public async Task Put(int id, [FromBody] Product product)
         {
-            var existingProduct = dbContext.Products.FirstOrDefault(p => p.Id == id);
+            var existingProduct = await dbContext.Products.FirstOrDefaultAsync(p => p.Id == id);
             if(existingProduct != null)
             {
                 existingProduct.Name = product.Name;
                 existingProduct.Description = product.Description;
                 existingProduct.Price = product.Price;
-                dbContext.SaveChanges();
+                await dbContext.SaveChangesAsync();
             }
         }
 
         // api/products/id
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task Delete(int id)
         {
             var existingProduct = dbContext.Products.FirstOrDefault(p => p.Id == id);
             if (existingProduct != null)
             {
                 dbContext.Products.Remove(existingProduct);
-                dbContext.SaveChanges();
+                await dbContext.SaveChangesAsync();
             }
         }
     }
