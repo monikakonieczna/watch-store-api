@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using WatchStoreApi.Data;
 using WatchStoreApi.Models;
 
 namespace WatchStoreApi.Controllers
@@ -8,33 +9,42 @@ namespace WatchStoreApi.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private static List<Product> Products = new List<Product>()
-      {
-            new Product { Id = 1, Name = "Watch A", Description = "Description for Watch A", Price = 199.99m },
-            new Product { Id = 2, Name = "Watch B", Description = "Description for Watch B", Price = 299.99m },
-            new Product { Id = 3, Name = "Watch C", Description = "Description for Watch C", Price = 399.99m }
+        private ApiDbContext dbContext;
+        public ProductsController(ApiDbContext dbContext)
+        {
+            this.dbContext = dbContext;
+        }
 
-      };
         [HttpGet]
         public IEnumerable<Product> Get()
         {
-            return Products;
+            return dbContext.Products;
         }
+
+        [HttpGet("{id}")]
+        public Product Get(int id)
+        {
+            return dbContext.Products.FirstOrDefault(p=>p.Id == id);
+        }
+
         [HttpPost]
         public void Post([FromBody] Product product)
         {
-            Products.Add(product);
+            dbContext.Products.Add(product);
+            dbContext.SaveChanges();
         }
+
         // api/products/id
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] Product product)
         {
-            var existingProduct = Products.FirstOrDefault(p => p.Id == id);
+            var existingProduct = dbContext.Products.FirstOrDefault(p => p.Id == id);
             if(existingProduct != null)
             {
                 existingProduct.Name = product.Name;
                 existingProduct.Description = product.Description;
                 existingProduct.Price = product.Price;
+                dbContext.SaveChanges();
             }
         }
 
@@ -42,10 +52,11 @@ namespace WatchStoreApi.Controllers
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
-            var existingProduct = Products.FirstOrDefault(p => p.Id == id);
+            var existingProduct = dbContext.Products.FirstOrDefault(p => p.Id == id);
             if (existingProduct != null)
             {
-                Products.Remove(existingProduct);
+                dbContext.Products.Remove(existingProduct);
+                dbContext.SaveChanges();
             }
         }
     }
