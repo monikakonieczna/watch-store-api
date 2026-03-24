@@ -40,9 +40,18 @@ namespace WatchStoreApi.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post([FromBody] Product product)
+        public async Task<ActionResult> Post([FromForm] Product product)
         {
-            if(product == null)
+            var guid = Guid.NewGuid();
+            var filePath = Path.Combine("wwwroot", guid + ".jpg");
+            using(var fileStream = new FileStream(filePath, FileMode.Create))
+            {
+                await product.Image.CopyToAsync(fileStream);
+            }
+
+            product.ImageUrl = filePath.Substring(8);
+
+            if (product == null)
             {
                 return BadRequest("Product is null");
             }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 
 namespace WatchStoreApi.Models
@@ -14,8 +15,13 @@ namespace WatchStoreApi.Models
         public decimal Price { get; set; }
         [JsonIgnore]
         public Category Category { get; set; }
+        [JsonIgnore]
         public ICollection<ShoppingCartItem> ShoppingCartItems { get; set; }
-        public ICollection<OrderDetail> OrderDetails { get; set; }  
+        [JsonIgnore]
+        public ICollection<OrderDetail> OrderDetails { get; set; }
+        [JsonIgnore]
+        [NotMapped]
+        public IFormFile Image { get; set; }
 
     }
 }
